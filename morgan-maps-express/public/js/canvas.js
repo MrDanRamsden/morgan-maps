@@ -556,7 +556,6 @@ function makeArrowMarker(id, colour) {
 
 // ─── Interactions ──────────────────────────────────────────────────────────
 
-let pendingEdgeSourceId = null;
 let drag = null;       // { nodeId, startX, startY, originX, originY }
 let pan = null;        // { startX, startY, originX, originY }
 
@@ -626,36 +625,13 @@ function onNodeMouseDown(e) {
 }
 
 function onNodeClick(e) {
+  // suppress click after a drag-move
   if (drag && drag.moved) return;
   e.stopPropagation();
   const id = e.currentTarget.dataset.id;
-  if (e.shiftKey) {
-    if (!pendingEdgeSourceId) {
-      pendingEdgeSourceId = id;
-      actions.selectNode(id);
-      return;
-    }
-
-    if (pendingEdgeSourceId !== id) {
-      actions.addEdge({
-        id: `edge_${Date.now()}`,
-        source: pendingEdgeSourceId,
-        target: id,
-        data: {
-          relationshipType: 'informs',
-          label: 'Informs',
-        },
-      });
-    }
-    pendingEdgeSourceId = null;
-    return;
-  }
-
-  pendingEdgeSourceId = null;
-
   actions.selectNode(id);
-
 }
+
 function onWindowMouseMove(e) {
   if (drag) {
     const z = viewport.zoom;
@@ -737,7 +713,13 @@ function fitView() {
   }
   fitToRect(xMin, yMin, xMax - xMin, yMax - yMin, 0.12, true);
 }
+function setViewport(nextViewport) {
+  viewport.x = nextViewport.x;
+  viewport.y = nextViewport.y;
+  viewport.zoom = nextViewport.zoom;
+  applyViewport();
 
+}
 function fitToRect(x, y, w, h, padding, animated) {
   const r = root.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) {
@@ -767,7 +749,7 @@ function animateViewport(target, duration) {
   function step(now) {
     const t = Math.min(1, (now - t0) / duration);
     const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-    actions.setViewport({
+    setViewport({
       x: start.x + (target.x - start.x) * e,
       y: start.y + (target.y - start.y) * e,
       zoom: start.zoom + (target.zoom - start.zoom) * e,
