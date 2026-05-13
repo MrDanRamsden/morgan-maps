@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { toPng, toSvg } from 'html-to-image';
 import {
   Plus,
   // Zap, // unused while Analyse button is hidden
@@ -100,6 +101,35 @@ export function MainToolbar({ onAddNode, onFitView }: MainToolbarProps) {
 
   const togglePanel = (panel: typeof activePanel) => {
     setActivePanel(activePanel === panel ? 'none' : panel);
+  };
+
+  const exportMapAsPng = async () => {
+    const el = document.querySelector('.react-flow') as HTMLElement | null;
+    if (!el) return;
+
+    const dataUrl = await toPng(el, {
+      cacheBust: true,
+      pixelRatio: 2,
+    });
+
+    const link = document.createElement('a');
+    link.download = `${mapName || 'service-map'}.png`;
+    link.href = dataUrl;
+    link.click();
+  };
+
+  const exportMapAsSvg = async () => {
+    const el = document.querySelector('.react-flow') as HTMLElement | null;
+    if (!el) return;
+
+    const dataUrl = await toSvg(el, {
+      cacheBust: true,
+    });
+
+    const link = document.createElement('a');
+    link.download = `${mapName || 'service-map'}.svg`;
+    link.href = dataUrl;
+    link.click();
   };
 
   return (
@@ -256,7 +286,24 @@ export function MainToolbar({ onAddNode, onFitView }: MainToolbarProps) {
           )}
         </div>
 
-        {/* Guide */}
+        {/* Image export */}
+        <button
+          onClick={exportMapAsPng}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+          title="Export map as PNG"
+        >
+          <Download size={13} />
+          PNG
+        </button>
+        <button
+          onClick={exportMapAsSvg}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
+          title="Export map as SVG"
+        >
+          <Download size={13} />
+          SVG
+        </button>
+
         <button
           onClick={() => togglePanel('help')}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
