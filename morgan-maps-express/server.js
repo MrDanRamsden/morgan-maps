@@ -1,28 +1,41 @@
 const express = require('express');
+
 const path = require('path');
 
+const basicAuth = require('express-basic-auth');
+
 const app = express();
-const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5173;
+
+const PORT = process.env.PORT || 5173;
+
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
-app.use(express.static(PUBLIC_DIR, {
-  extensions: ['html'],
-  setHeaders(res, filePath) {
-    if (filePath.endsWith('.json')) {
-      res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    }
-    if (filePath.endsWith('.md')) {
-      res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-    }
-  },
-}));
+app.use(
 
-// SPA fallback — every non-static path returns the app shell.
+  basicAuth({
+
+    users: {
+
+      [process.env.APP_USER || 'team']: process.env.APP_PASSWORD || 'change-me'
+
+    },
+
+    challenge: true
+
+  })
+
+);
+
+app.use(express.static(PUBLIC_DIR));
+
 app.get('*', (_req, res) => {
+
   res.sendFile(path.join(PUBLIC_DIR, 'index.html'));
+
 });
 
 app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Morgan Map running at http://localhost:${PORT}`);
+
+  console.log(`Running on http://localhost:${PORT}`);
+
 });
