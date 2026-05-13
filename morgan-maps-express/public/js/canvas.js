@@ -558,6 +558,7 @@ function makeArrowMarker(id, colour) {
 
 let drag = null;       // { nodeId, startX, startY, originX, originY }
 let pan = null;        // { startX, startY, originX, originY }
+let pendingEdgeSourceId = null;
 
 function attachInteractions() {
   root.addEventListener('mousedown', (e) => {
@@ -629,6 +630,28 @@ function onNodeClick(e) {
   if (drag && drag.moved) return;
   e.stopPropagation();
   const id = e.currentTarget.dataset.id;
+  if (e.shiftKey) {
+    if (!pendingEdgeSourceId) {
+      pendingEdgeSourceId = id;
+      actions.selectNode(id);
+      return;
+    }
+    if (pendingEdgeSourceId !== id) {
+      actions.addEdge({
+        id: `edge_${Date.now()}`,
+        source: pendingEdgeSourceId,
+        target: id,
+        data: {
+          relationshipType: 'informs',
+          label: 'Informs'
+        }
+      });
+    }
+    pendingEdgeSourceId = null;
+    return;
+
+  }
+  pendingEdgeSourceId = null;
   actions.selectNode(id);
 }
 
