@@ -713,12 +713,7 @@ function fitView() {
   }
   fitToRect(xMin, yMin, xMax - xMin, yMax - yMin, 0.12, true);
 }
-function setViewport(nextViewport) {
-  viewport.x = nextViewport.x;
-  viewport.y = nextViewport.y;
-  viewport.zoom = nextViewport.zoom;
-  applyViewport();
-}
+
 function fitToRect(x, y, w, h, padding, animated) {
   const r = root.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) {
@@ -748,7 +743,7 @@ function animateViewport(target, duration) {
   function step(now) {
     const t = Math.min(1, (now - t0) / duration);
     const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-    setViewport({
+    actions.setViewport({
       x: start.x + (target.x - start.x) * e,
       y: start.y + (target.y - start.y) * e,
       zoom: start.zoom + (target.zoom - start.zoom) * e,
