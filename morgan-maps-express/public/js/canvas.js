@@ -716,9 +716,8 @@ function fitView() {
 function setViewport(nextViewport) {
   viewport.x = nextViewport.x;
   viewport.y = nextViewport.y;
-  viewport.scale = nextViewport.scale;
-  draw();
-
+  viewport.zoom = nextViewport.zoom;
+  applyViewport();
 }
 function fitToRect(x, y, w, h, padding, animated) {
   const r = root.getBoundingClientRect();
@@ -749,7 +748,7 @@ function animateViewport(target, duration) {
   function step(now) {
     const t = Math.min(1, (now - t0) / duration);
     const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
-    actions.setViewport({
+    setViewport({
       x: start.x + (target.x - start.x) * e,
       y: start.y + (target.y - start.y) * e,
       zoom: start.zoom + (target.zoom - start.zoom) * e,
