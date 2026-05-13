@@ -556,6 +556,7 @@ function makeArrowMarker(id, colour) {
 
 // ─── Interactions ──────────────────────────────────────────────────────────
 
+let pendingEdgeSourceId = null;
 let drag = null;       // { nodeId, startX, startY, originX, originY }
 let pan = null;        // { startX, startY, originX, originY }
 
@@ -625,13 +626,36 @@ function onNodeMouseDown(e) {
 }
 
 function onNodeClick(e) {
-  // suppress click after a drag-move
   if (drag && drag.moved) return;
   e.stopPropagation();
   const id = e.currentTarget.dataset.id;
-  actions.selectNode(id);
-}
+  if (e.shiftKey) {
+    if (!pendingEdgeSourceId) {
+      pendingEdgeSourceId = id;
+      actions.selectNode(id);
+      return;
+    }
 
+    if (pendingEdgeSourceId !== id) {
+      actions.addEdge({
+        id: `edge_${Date.now()}`,
+        source: pendingEdgeSourceId,
+        target: id,
+        data: {
+          relationshipType: 'informs',
+          label: 'Informs',
+        },
+      });
+    }
+    pendingEdgeSourceId = null;
+    return;
+  }
+
+  pendingEdgeSourceId = null;
+
+  actions.selectNode(id);
+
+}
 function onWindowMouseMove(e) {
   if (drag) {
     const z = viewport.zoom;
