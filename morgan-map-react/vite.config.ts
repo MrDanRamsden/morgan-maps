@@ -5,7 +5,7 @@ export default defineConfig({
   plugins: [react()],
   base: '/morgan-map',
   build: {
-    outDir: '../../dist/morgan-map',
+    outDir: 'dist',
     emptyOutDir: true,
   },
   server: {
