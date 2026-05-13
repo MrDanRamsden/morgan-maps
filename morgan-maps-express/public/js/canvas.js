@@ -713,7 +713,13 @@ function fitView() {
   }
   fitToRect(xMin, yMin, xMax - xMin, yMax - yMin, 0.12, true);
 }
+function setViewport(nextViewport) {
+  viewport.x = nextViewport.x;
+  viewport.y = nextViewport.y;
+  viewport.scale = nextViewport.scale;
+  draw();
 
+}
 function fitToRect(x, y, w, h, padding, animated) {
   const r = root.getBoundingClientRect();
   if (r.width === 0 || r.height === 0) {
