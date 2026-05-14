@@ -22,7 +22,7 @@ export function ViewerApp({ mapId }: ViewerAppProps) {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/maps/${mapId}`)
+    fetch(`/servicemap/maps/${mapId}.json`)
       .then((r) => { if (!r.ok) throw new Error(); return r.json(); })
       .then((data) => {
         importMap({ nodes: data.nodes, edges: data.edges });

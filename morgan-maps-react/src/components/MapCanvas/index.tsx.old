@@ -32,7 +32,7 @@ const defaultEdgeOptions = {
   markerEnd: { type: MarkerType.ArrowClosed, width: 12, height: 12 },
 };
 
-function MapCanvasInner({ readOnly = false, axisPresetId = 'automationCriticality' }: { readOnly?: boolean; axisPresetId?: AxisPresetId }) {
+function MapCanvasInner({ readOnly = false }: { readOnly?: boolean }) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const { screenToFlowPosition } = useReactFlow();
   const [minimapVisible, setMinimapVisible] = useState(false);
@@ -218,11 +218,7 @@ function MapCanvasInner({ readOnly = false, axisPresetId = 'automationCriticalit
         selectionOnDrag={selectionMode}
         panOnDrag={selectionMode ? [1, 2] : true}
       >
-        <AxisBackground
-          canvasWidth={canvasWidth}
-          canvasHeight={canvasHeight}
-          axisPresetId={axisPresetId}
-        />
+        <AxisBackground canvasWidth={canvasWidth} canvasHeight={canvasHeight} />
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#e2e8f0" />
         <Controls
           position="bottom-right"
@@ -297,16 +293,10 @@ function MapCanvasInner({ readOnly = false, axisPresetId = 'automationCriticalit
   );
 }
 
-export function MapCanvas({
-  readOnly = false,
-  axisPresetId = 'automationCriticality',
-}: {
-  readOnly?: boolean;
-  axisPresetId?: AxisPresetId;
-}) {
+export function MapCanvas({ readOnly = false }: { readOnly?: boolean }) {
   return (
     <ReactFlowProvider>
-      <MapCanvasInner readOnly={readOnly} axisPresetId={axisPresetId} />
+      <MapCanvasInner readOnly={readOnly} />
     </ReactFlowProvider>
   );
 }

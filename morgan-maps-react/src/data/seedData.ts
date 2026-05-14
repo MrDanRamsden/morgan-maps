@@ -37,427 +37,612 @@ function makeEdge(
 }
 
 export const SEED_NODES: Node<NodeData>[] = [
-  makeNode('n1', {
-    title: 'Online Claim Form',
-    description:
-      'Citizen-facing web form for initiating a Universal Credit claim. Accessible 24/7 via GOV.UK.',
-    nodeType: 'interface',
-    owner: 'Digital Services Team',
-    organisation: 'DWP',
-    tags: ['citizen-facing', 'digital', 'channel'],
-    status: 'active',
-    confidenceScore: 0.9,
-    notes: 'High drop-off rate at evidence upload step. UX review scheduled.',
-    automationLevel: 0.15,
-    criticalityLevel: 0.25,
-    overlays: { frictionPoints: true },
+  makeNode("ideation_discovery", {
+    "title": "Ideate & Discovery",
+    "nodeType": "interface",
+    "automationLevel": 0,
+    "criticalityLevel": 0.62,
+    "organisation": "BBC",
+    "description": "PMs and teams use multiple data sources to understand user and business problems, then ideate an experiment backlog to address them.",
+    "owner": "Product Managers, Experimentation CoE, Product Analytics, UX, Design Research",
+    "tags": [
+      "ideation",
+      "discovery",
+      "backlog",
+      "human-led"
+    ],
+    "status": "active",
+    "confidenceScore": 0.85,
+    "notes": "Based on the high-level process in the Experimentation Cheat Sheet.",
+    "overlays": {
+      "pathway": true
+    },
   }),
 
-  makeNode('n2', {
-    title: 'GOV.UK One Login',
-    description:
-      'Shared identity verification and authentication platform. Federated across government services.',
-    nodeType: 'execution',
-    owner: 'GOV.UK Identity',
-    organisation: 'GDS / Cabinet Office',
-    tags: ['identity', 'shared', 'cross-boundary'],
-    status: 'active',
-    confidenceScore: 0.85,
-    notes:
-      'Planned migration from legacy Verify. Some agencies still using interim solutions.',
-    automationLevel: 0.78,
-    criticalityLevel: 0.78,
-    overlays: { orgBoundaries: true },
+  makeNode("problem_statement_hypothesis", {
+    "title": "Problem Statement & Hypothesis",
+    "nodeType": "evidence",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.74,
+    "organisation": "BBC",
+    "description": "Structured articulation of the user/business problem and expected impact, using playbook guidance on problem statements and hypotheses.",
+    "owner": "Product Managers, UX, Experimentation CoE",
+    "tags": [
+      "hypothesis",
+      "problem-statement",
+      "experiment-brief"
+    ],
+    "status": "active",
+    "confidenceScore": 0.8,
+    "notes": "Assumes teams use the linked playbook and training materials to shape briefs.",
+    "overlays": {
+      "pathway": true,
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n3', {
-    title: 'Initial Eligibility Decision',
-    description:
-      'Rules-based assessment of whether claimant meets basic eligibility criteria (age, residency, work status).',
-    nodeType: 'decision',
-    owner: 'Case Processing',
-    organisation: 'DWP',
-    tags: ['automated', 'rules-engine', 'eligibility'],
-    status: 'active',
-    confidenceScore: 0.75,
-    notes:
-      'Edge cases around non-standard living arrangements handled manually. Accuracy review pending.',
-    automationLevel: 0.58,
-    criticalityLevel: 0.72,
-    overlays: {},
+  makeNode("experiment_backlog", {
+    "title": "Experiment Backlog",
+    "nodeType": "execution",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.52,
+    "organisation": "BBC",
+    "description": "Prioritised set of experiment opportunities that teams prepare for brief creation and resource alignment.",
+    "owner": "Product Managers",
+    "tags": [
+      "backlog",
+      "prioritisation",
+      "planning"
+    ],
+    "status": "active",
+    "confidenceScore": 0.75,
+    "notes": "Backlog quality depends on discovery evidence and team prioritisation.",
+    "overlays": {
+      "pathway": true
+    },
   }),
 
-  makeNode('n4', {
-    title: 'Fraud & Error Risk Score',
-    description:
-      'ML model that scores new claims for fraud risk indicators. Score influences processing route.',
-    nodeType: 'evidence',
-    owner: 'Counter Fraud Intelligence',
-    organisation: 'DWP',
-    tags: ['AI', 'fraud', 'risk-scoring', 'automated'],
-    status: 'active',
-    confidenceScore: 0.55,
-    notes:
-      'Model trained on historical fraud data. Known bias risks under review. Disproportionate impact on certain demographics flagged by internal audit.',
-    automationLevel: 0.88,
-    criticalityLevel: 0.88,
-    overlays: {},
+  makeNode("experiment_brief", {
+    "title": "Experiment Brief",
+    "nodeType": "interface",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.76,
+    "organisation": "BBC",
+    "description": "Template used to capture the experiment hypothesis, context, design choices, metrics, resource needs and stakeholder alignment before build.",
+    "owner": "Product Managers with Experimentation CoE, Product Analytics, UX and Engineering",
+    "tags": [
+      "brief",
+      "alignment",
+      "governance"
+    ],
+    "status": "active",
+    "confidenceScore": 0.82,
+    "notes": "The cheat sheet says teams should start filling out Experiment Briefs once they have a backlog and engage relevant teams to align resource.",
+    "overlays": {
+      "pathway": true,
+      "policyConstraints": true
+    },
   }),
 
-  makeNode('n5', {
-    title: 'Medical Evidence Review',
-    description:
-      'Case worker assessment of medical evidence submitted to support a Limited Capability for Work claim.',
-    nodeType: 'decision',
-    owner: 'Health Assessment Team',
-    organisation: 'DWP',
-    tags: ['human-judgement', 'medical', 'sensitive'],
-    status: 'active',
-    confidenceScore: 0.7,
-    notes: 'Relies on third-party GP evidence which is often delayed or incomplete.',
-    automationLevel: 0.12,
-    criticalityLevel: 0.92,
-    overlays: { frictionPoints: true, policyConstraints: true },
+  makeNode("metric_path_choice", {
+    "title": "Metric Path Choice",
+    "nodeType": "decision",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.84,
+    "organisation": "BBC",
+    "description": "Decision on whether the required metric is a self-serve click/impression metric, a consumption Journey-to-Consumption metric, or requires manual analysis/support.",
+    "owner": "Experimentation CoE and Product Analytics",
+    "tags": [
+      "metrics",
+      "self-serve",
+      "manual-analysis",
+      "decision"
+    ],
+    "status": "active",
+    "confidenceScore": 0.9,
+    "notes": "Based on the self-service metrics decision diagram.",
+    "overlays": {
+      "pathway": true,
+      "dataQuality": true,
+      "policyConstraints": true
+    },
   }),
 
-  makeNode('n6', {
-    title: 'Benefit Calculation Engine',
-    description:
-      'Automated system that calculates entitlement amount based on household composition, earnings, and deductions.',
-    nodeType: 'execution',
-    owner: 'Payments Architecture',
-    organisation: 'DWP',
-    tags: ['automated', 'calculation', 'financial'],
-    status: 'active',
-    confidenceScore: 0.92,
-    notes:
-      'Complex tariff logic updated at each budget cycle. Change control is manual and error-prone.',
-    automationLevel: 0.92,
-    criticalityLevel: 0.68,
-    overlays: {},
+  makeNode("existing_metrics_hub", {
+    "title": "Existing Metrics Hub",
+    "nodeType": "evidence",
+    "automationLevel": 0.75,
+    "criticalityLevel": 0.72,
+    "organisation": "BBC",
+    "description": "Catalogue of existing self-serve metrics available for experiment use, including Optimizely and Piano-related metric options.",
+    "owner": "Experimentation CoE",
+    "tags": [
+      "metrics",
+      "hub",
+      "self-serve",
+      "optimizely"
+    ],
+    "status": "active",
+    "confidenceScore": 0.78,
+    "notes": "The PDFs refer to Experimentation Hub resources and checking whether metrics already exist in the hub.",
+    "overlays": {
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n7', {
-    title: 'Case Worker Dashboard',
-    description:
-      'Internal tool for case workers to view, action, and annotate claims. Gateway to manual interventions.',
-    nodeType: 'interface',
-    owner: 'Digital Services Team',
-    organisation: 'DWP',
-    tags: ['internal', 'casework', 'digital'],
-    status: 'active',
-    confidenceScore: 0.8,
-    notes:
-      'Legacy system. Limited search capability. Integration with real-time earnings data is unreliable.',
-    automationLevel: 0.38,
-    criticalityLevel: 0.52,
-    overlays: {},
+  makeNode("cube_spec_check", {
+    "title": "CUBE Specification Check",
+    "nodeType": "decision",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.68,
+    "organisation": "BBC",
+    "description": "Decision on whether CUBE is willing or able to add the required specification into the hub, with escalation to the product-data-tracking channel when unknown.",
+    "owner": "CUBE / Product Data Tracking with Experimentation CoE",
+    "tags": [
+      "tracking-specification",
+      "cube",
+      "metrics",
+      "escalation"
+    ],
+    "status": "active",
+    "confidenceScore": 0.72,
+    "notes": "Derived from the metric decision process PDF; operational ownership may need confirmation.",
+    "overlays": {
+      "orgBoundaries": true,
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n8', {
-    title: 'Mandatory Reconsideration',
-    description:
-      'Formal internal review of a decision the claimant disputes, before an external appeal.',
-    nodeType: 'decision',
-    owner: 'MR & Appeals Team',
-    organisation: 'DWP',
-    tags: ['legal', 'human-judgement', 'review'],
-    status: 'active',
-    confidenceScore: 0.65,
-    notes: 'High overturn rate suggests upstream decision quality issues.',
-    automationLevel: 0.08,
-    criticalityLevel: 0.9,
-    overlays: { policyConstraints: true },
+  makeNode("manual_analysis_route", {
+    "title": "Manual Analysis Route",
+    "nodeType": "execution",
+    "automationLevel": 0,
+    "criticalityLevel": 0.79,
+    "organisation": "BBC",
+    "description": "Route for metrics that cannot be self-served, including manual analysis by Product Analytics and use of manual analysis steps, templates, scripts and GitHub resources.",
+    "owner": "Product Analytics",
+    "tags": [
+      "manual-analysis",
+      "product-analytics",
+      "metrics"
+    ],
+    "status": "active",
+    "confidenceScore": 0.85,
+    "notes": "Applies when self-service is not possible for consumption metrics or unavailable click/impression metrics.",
+    "overlays": {
+      "pathway": true,
+      "frictionPoints": true
+    },
   }),
 
-  makeNode('n9', {
-    title: 'Independent Tribunal Appeal',
-    description:
-      'External judicial appeal heard by an independent tribunal. Legally binding determination.',
-    nodeType: 'decision',
-    owner: 'Judicial Panel',
-    organisation: 'HMCTS',
-    tags: ['legal', 'external', 'judicial', 'cross-boundary'],
-    status: 'active',
-    confidenceScore: 0.95,
-    notes:
-      'Entirely independent of DWP. Overturn rate circa 60%. Signals systemic decision quality issues.',
-    automationLevel: 0.04,
-    criticalityLevel: 0.97,
-    overlays: { orgBoundaries: true },
+  makeNode("test_design", {
+    "title": "Test Design",
+    "nodeType": "decision",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.86,
+    "organisation": "BBC",
+    "description": "Teams design an experiment capable of detecting significant impacts to metrics in a feasible timeframe, deciding whether deep-dive analysis is required and deliverable.",
+    "owner": "Product Managers, Experimentation CoE, Product Analytics",
+    "tags": [
+      "test-design",
+      "rct",
+      "duration",
+      "sample-size"
+    ],
+    "status": "active",
+    "confidenceScore": 0.9,
+    "notes": "The cheat sheet stresses metrics advice, sample size calculation and choosing the right metrics at this stage.",
+    "overlays": {
+      "pathway": true,
+      "policyConstraints": true
+    },
   }),
 
-  makeNode('n10', {
-    title: 'Monthly Payment Run',
-    description:
-      'Automated BACS payment instruction to claimant bank account on assessment period end date.',
-    nodeType: 'execution',
-    owner: 'Payments Operations',
-    organisation: 'DWP / BACS',
-    tags: ['automated', 'financial', 'cross-boundary'],
-    status: 'active',
-    confidenceScore: 0.95,
-    notes: 'Near-zero error rate. Occasional failures when bank details stale.',
-    automationLevel: 0.97,
-    criticalityLevel: 0.55,
-    overlays: {},
+  makeNode("duration_sample_size_calculation", {
+    "title": "Duration & Sample Size Calculation",
+    "nodeType": "evidence",
+    "automationLevel": 0.75,
+    "criticalityLevel": 0.88,
+    "organisation": "BBC",
+    "description": "Use the duration calculator and sample-size guidance to determine whether the experiment can run long enough and reach a sufficient audience to detect impact.",
+    "owner": "Product Analytics with Experimentation CoE up-skilling",
+    "tags": [
+      "duration-calculator",
+      "sample-size",
+      "statistical-power"
+    ],
+    "status": "active",
+    "confidenceScore": 0.88,
+    "notes": "The stop stage requires checking sample size against the calculation made in design.",
+    "overlays": {
+      "dataQuality": true,
+      "pathway": true
+    },
   }),
 
-  makeNode('n11', {
-    title: 'Claimant Notifications',
-    description:
-      'Automated letters, texts, and journal messages sent at key milestones in claim lifecycle.',
-    nodeType: 'interface',
-    owner: 'Communications',
-    organisation: 'DWP',
-    tags: ['automated', 'citizen-facing', 'notification'],
-    status: 'active',
-    confidenceScore: 0.82,
-    notes: 'Notification content often confusing. High call volumes after notification events.',
-    automationLevel: 0.88,
-    criticalityLevel: 0.28,
-    overlays: { frictionPoints: true },
+  makeNode("metric_validity_rules", {
+    "title": "Metric Validity Rules",
+    "nodeType": "evidence",
+    "automationLevel": 0.5,
+    "criticalityLevel": 0.82,
+    "organisation": "BBC",
+    "description": "Guidance on choosing valid user-level metrics and avoiding WAA, window or lagging metrics in experiments.",
+    "owner": "Experimentation CoE and Product Analytics",
+    "tags": [
+      "metric-validity",
+      "user-level-metrics",
+      "governance"
+    ],
+    "status": "active",
+    "confidenceScore": 0.86,
+    "notes": "The cheat sheet explicitly warns that WAA, window or lagging metrics cannot be used in experiments.",
+    "overlays": {
+      "policyConstraints": true,
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n12', {
-    title: 'Policy Rules Engine',
-    description:
-      'Centralised rules repository encoding legislation and DWP policy. Drives eligibility and calculation logic.',
-    nodeType: 'evidence',
-    owner: 'Policy & Legislation',
-    organisation: 'DWP Policy',
-    tags: ['policy', 'legislation', 'rules'],
-    status: 'active',
-    confidenceScore: 0.72,
-    notes:
-      'Maintained by policy team, not engineering. Changes lag behind legislation. No automated testing suite.',
-    automationLevel: 0.68,
-    criticalityLevel: 0.85,
-    overlays: { policyConstraints: true },
+  makeNode("feature_build", {
+    "title": "Feature Build",
+    "nodeType": "execution",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.7,
+    "organisation": "BBC",
+    "description": "Engineering and Data Science build the experiment feature required for the test, including integration points needed for variants and measurement.",
+    "owner": "Engineering, Data Science",
+    "tags": [
+      "build",
+      "engineering",
+      "data-science"
+    ],
+    "status": "active",
+    "confidenceScore": 0.8,
+    "notes": "The cheat sheet names Webcore, RMS, iBL and Serving-Team as examples of supporting engineering teams.",
+    "overlays": {
+      "pathway": true
+    },
   }),
 
-  makeNode('n13', {
-    title: 'GP Medical Report',
-    description:
-      'Third-party evidence from GP or specialist supporting medical condition claim.',
-    nodeType: 'interface',
-    owner: 'GP Practice',
-    organisation: 'NHS',
-    tags: ['third-party', 'medical', 'cross-boundary', 'paper'],
-    status: 'active',
-    confidenceScore: 0.5,
-    notes: 'Often received as scanned PDFs. Variable quality. Average wait 3–6 weeks.',
-    automationLevel: 0.22,
-    criticalityLevel: 0.82,
-    overlays: { orgBoundaries: true, dataQuality: true },
+  makeNode("optimizely_experiment_build", {
+    "title": "Optimizely Experiment Build",
+    "nodeType": "execution",
+    "automationLevel": 0.5,
+    "criticalityLevel": 0.76,
+    "organisation": "BBC",
+    "description": "Teams build the feature experiment in Optimizely, applying the correct activation scopes, available metrics, control/variant configuration and experiment key prefixes.",
+    "owner": "Engineering, Data Science, Experimentation CoE",
+    "tags": [
+      "optimizely",
+      "feature-experimentation",
+      "activation-scopes",
+      "prefixes"
+    ],
+    "status": "active",
+    "confidenceScore": 0.88,
+    "notes": "Build guidance includes business/developer Optimizely videos, setup guides, activation scopes, available metrics and required prefixes.",
+    "overlays": {
+      "pathway": true,
+      "policyConstraints": true
+    },
   }),
 
-  makeNode('n14', {
-    title: 'Claimant Record Store',
-    description:
-      'Canonical data store for claimant identity, history, household, and claim state.',
-    nodeType: 'evidence',
-    owner: 'Data Platform',
-    organisation: 'DWP',
-    tags: ['data', 'core', 'sensitive'],
-    status: 'active',
-    confidenceScore: 0.85,
-    notes: 'Multiple legacy systems feed into this. Data quality varies by source system.',
-    automationLevel: 0.72,
-    criticalityLevel: 0.62,
-    overlays: { dataQuality: true },
+  makeNode("qa_prelaunch", {
+    "title": "Pre-launch QA Decision",
+    "nodeType": "decision",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.9,
+    "organisation": "BBC",
+    "description": "Go/no-go quality decision before launch, checking that the correct experience is served and control/variant displays correctly.",
+    "owner": "Engineering, Data Science, Product Managers",
+    "tags": [
+      "qa",
+      "go-live",
+      "quality",
+      "pre-launch"
+    ],
+    "status": "active",
+    "confidenceScore": 0.9,
+    "notes": "The cheat sheet calls QA before launch a must-read before going live.",
+    "overlays": {
+      "pathway": true,
+      "frictionPoints": true
+    },
   }),
 
-  makeNode('n15', {
-    title: 'Real-Time Earnings Feed',
-    description:
-      'HMRC PAYE data fed into Universal Credit calculation each assessment period.',
-    nodeType: 'evidence',
-    owner: 'HMRC PAYE Service',
-    organisation: 'HMRC',
-    tags: ['data', 'cross-boundary', 'automated', 'financial'],
-    status: 'active',
-    confidenceScore: 0.88,
-    notes: 'Coverage gap for self-employed earners. Manual declarations required.',
-    automationLevel: 0.93,
-    criticalityLevel: 0.72,
-    overlays: { orgBoundaries: true },
+  makeNode("launch_monitor", {
+    "title": "Launch & Monitor",
+    "nodeType": "execution",
+    "automationLevel": 0.5,
+    "criticalityLevel": 0.84,
+    "organisation": "BBC",
+    "description": "Experiment is launched, teams check it is working and displaying as expected, and Day 0 checks confirm data is flowing correctly and traffic is assigned.",
+    "owner": "Engineering, Data Science, Product Managers, Experimentation CoE, Product Analytics",
+    "tags": [
+      "launch",
+      "monitoring",
+      "day-0",
+      "day-3"
+    ],
+    "status": "active",
+    "confidenceScore": 0.9,
+    "notes": "Day 0-3 checks cover Optimizely, Piano and manual metrics depending on the metric route.",
+    "overlays": {
+      "pathway": true,
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n16', {
-    title: 'Document Classification AI',
-    description:
-      'NLP model that classifies incoming documents and routes them to the correct case queue.',
-    nodeType: 'execution',
-    owner: 'AI Capabilities',
-    organisation: 'DWP',
-    tags: ['AI', 'document', 'routing'],
-    status: 'planned',
-    confidenceScore: 0.45,
-    notes:
-      'In pilot. Accuracy circa 78%. Misclassifications create significant manual rework.',
-    automationLevel: 0.82,
-    criticalityLevel: 0.45,
-    overlays: {},
+  makeNode("day_0_3_checks", {
+    "title": "Day 0-3 Health Checks",
+    "nodeType": "evidence",
+    "automationLevel": 0.75,
+    "criticalityLevel": 0.82,
+    "organisation": "BBC",
+    "description": "Early monitoring evidence that data flows correctly, traffic is assigned, samples are balanced and no major performance impacts appear in metrics.",
+    "owner": "Product team, Experimentation CoE, Product Analytics",
+    "tags": [
+      "health-check",
+      "traffic",
+      "metrics",
+      "monitoring"
+    ],
+    "status": "active",
+    "confidenceScore": 0.86,
+    "notes": "Self-serve Optimizely and Piano checks can be done by anyone in the team with up-skilling; manual metrics involve Product Analytics.",
+    "overlays": {
+      "dataQuality": true,
+      "pathway": true
+    },
   }),
 
-  makeNode('n17', {
-    title: 'Case Supervisor Review',
-    description:
-      'Senior case worker oversight of complex or high-risk cases before decision is issued.',
-    nodeType: 'execution',
-    owner: 'Operations Management',
-    organisation: 'DWP',
-    tags: ['human-judgement', 'oversight', 'quality'],
-    status: 'active',
-    confidenceScore: 0.78,
-    notes: 'Supervisor capacity is a bottleneck. Average 8-day queue for escalated cases.',
-    automationLevel: 0.1,
-    criticalityLevel: 0.85,
-    overlays: {},
+  makeNode("stop_decision", {
+    "title": "Stop / Continue Decision",
+    "nodeType": "decision",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.87,
+    "organisation": "BBC",
+    "description": "Decision on whether the experiment has run long enough and reached a comparable sample size to the design-stage duration calculation before stopping, pausing or concluding.",
+    "owner": "Product Managers, Experimentation CoE, Product Analytics",
+    "tags": [
+      "stop",
+      "continue",
+      "sample-size",
+      "conclude"
+    ],
+    "status": "active",
+    "confidenceScore": 0.9,
+    "notes": "The cheat sheet states experiments must run for a minimum of two weeks and sample size must be checked before stopping.",
+    "overlays": {
+      "policyConstraints": true,
+      "pathway": true
+    },
   }),
 
-  makeNode('n18', {
-    title: 'Audit & Compliance Logs',
-    description:
-      'Automated logging of all system decisions, overrides, and case actions for internal audit.',
-    nodeType: 'evidence',
-    owner: 'Internal Audit',
-    organisation: 'DWP',
-    tags: ['audit', 'compliance', 'automated'],
-    status: 'active',
-    confidenceScore: 0.82,
-    notes: 'Log coverage is incomplete for legacy system actions. Gaps identified in 2023 audit.',
-    automationLevel: 0.78,
-    criticalityLevel: 0.58,
-    overlays: { policyConstraints: true },
+  makeNode("analysis_results", {
+    "title": "Results Analysis Decision",
+    "nodeType": "decision",
+    "automationLevel": 0.75,
+    "criticalityLevel": 0.89,
+    "organisation": "BBC",
+    "description": "Determine whether there was a winning variant, using self-serve Optimizely analysis where possible or manual analysis workflows for agreed manual metrics.",
+    "owner": "Product team, Product Analytics, Experimentation CoE",
+    "tags": [
+      "analysis",
+      "winning-variant",
+      "optimizely",
+      "manual-analysis"
+    ],
+    "status": "active",
+    "confidenceScore": 0.88,
+    "notes": "The cheat sheet says analysis is self-serve in Optimizely for relevant metrics, with Product Analytics support for manual metrics.",
+    "overlays": {
+      "pathway": true,
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n19', {
-    title: 'Case Object: UC Claim',
-    description:
-      'The canonical claim record that persists across the entire lifecycle of a Universal Credit case.',
-    nodeType: 'evidence',
-    owner: 'Case Management',
-    organisation: 'DWP',
-    tags: ['case', 'lifecycle', 'core'],
-    status: 'active',
-    confidenceScore: 0.9,
-    notes: '',
-    automationLevel: 0.5,
-    criticalityLevel: 0.62,
-    overlays: {},
+  makeNode("analysis_tooling", {
+    "title": "Analysis Tooling & Scripts",
+    "nodeType": "evidence",
+    "automationLevel": 0.75,
+    "criticalityLevel": 0.78,
+    "organisation": "BBC",
+    "description": "Optimizely, Experimentation Hub, manual analysis Dropbox docs, GitHub resources and R scripts used to prepare data and calculate continuous or proportion/rate metric results.",
+    "owner": "Product Analytics, Experimentation CoE",
+    "tags": [
+      "tooling",
+      "github",
+      "r-script",
+      "optimizely",
+      "experimentation-hub"
+    ],
+    "status": "active",
+    "confidenceScore": 0.82,
+    "notes": "Tooling evidence comes from links and analyst guidance in the cheat sheet.",
+    "overlays": {
+      "dataQuality": true
+    },
   }),
 
-  makeNode('n20', {
-    title: 'Triage & Routing Engine',
-    description:
-      'Routes new claims to appropriate processing queue based on complexity indicators and fraud score.',
-    nodeType: 'execution',
-    owner: 'Operations',
-    organisation: 'DWP',
-    tags: ['routing', 'triage', 'automated'],
-    status: 'active',
-    confidenceScore: 0.7,
-    notes:
-      'Routing logic is opaque. Difficult to audit or challenge. No user-facing explanation of routing decision.',
-    automationLevel: 0.72,
-    criticalityLevel: 0.68,
-    overlays: {},
+  makeNode("next_steps", {
+    "title": "Next Steps",
+    "nodeType": "execution",
+    "automationLevel": 0.25,
+    "criticalityLevel": 0.72,
+    "organisation": "BBC",
+    "description": "Perform agreed deep-dive analysis, roll out the winning variant, go back to ideate an iteration, or move on to the next experiment.",
+    "owner": "Product Managers, Product Analytics, Experimentation CoE, UX",
+    "tags": [
+      "rollout",
+      "iteration",
+      "deep-dive",
+      "learning-loop"
+    ],
+    "status": "active",
+    "confidenceScore": 0.86,
+    "notes": "Final stage from the Experimentation Cheat Sheet.",
+    "overlays": {
+      "pathway": true
+    },
   }),
+
 ];
 
 export const SEED_EDGES: Edge<EdgeData>[] = [
-  makeEdge('e1', 'n1', 'n2', {
-    relationshipType: 'triggers',
-    description: 'Claim form submission triggers identity verification',
+  makeEdge("edge_01", "ideation_discovery", "problem_statement_hypothesis", {
+    "relationshipType": "informs",
+    "description": "Discovery data shapes the problem statement and hypothesis.",
+    "interoperabilityNote": "Human synthesis supported by playbook and training materials."
   }),
-  makeEdge('e2', 'n2', 'n3', {
-    relationshipType: 'informs',
-    description: 'Verified identity passed to eligibility decision',
+
+  makeEdge("edge_02", "problem_statement_hypothesis", "experiment_backlog", {
+    "relationshipType": "informs",
+    "description": "Defined opportunities are added to the experiment backlog.",
+    "interoperabilityNote": "Team planning and backlog tooling."
   }),
-  makeEdge('e3', 'n4', 'n3', {
-    relationshipType: 'informs',
-    description: 'Fraud risk score informs eligibility routing',
-    interoperabilityNote: 'Score is opaque to case workers',
+
+  makeEdge("edge_03", "experiment_backlog", "experiment_brief", {
+    "relationshipType": "triggers",
+    "description": "Prioritised backlog items trigger experiment brief creation.",
+    "interoperabilityNote": "Experiment Brief template."
   }),
-  makeEdge('e4', 'n3', 'n20', {
-    relationshipType: 'triggers',
-    description: 'Eligibility decision triggers claim triage and routing',
+
+  makeEdge("edge_04", "experiment_brief", "metric_path_choice", {
+    "relationshipType": "triggers",
+    "description": "Briefing the experiment triggers metric route decisions.",
+    "interoperabilityNote": "Metric requirements captured in the brief."
   }),
-  makeEdge('e5', 'n20', 'n7', {
-    relationshipType: 'transfersTo',
-    description: 'Complex cases routed to case worker queue',
+
+  makeEdge("edge_05", "metric_path_choice", "existing_metrics_hub", {
+    "relationshipType": "informs",
+    "description": "Self-serve candidates are checked against existing hub metrics.",
+    "interoperabilityNote": "Experimentation Hub / metrics catalogue."
   }),
-  makeEdge('e6', 'n20', 'n6', {
-    relationshipType: 'triggers',
-    description: 'Simple eligible claims route directly to calculation',
+
+  makeEdge("edge_06", "existing_metrics_hub", "test_design", {
+    "relationshipType": "informs",
+    "description": "Available metrics shape the test design and feasibility.",
+    "interoperabilityNote": "Metrics selected for use in Optimizely or manual analysis."
   }),
-  makeEdge('e7', 'n12', 'n3', {
-    relationshipType: 'constrains',
-    description: 'Policy rules constrain eligibility criteria',
+
+  makeEdge("edge_07", "metric_path_choice", "cube_spec_check", {
+    "relationshipType": "escalatesTo",
+    "description": "Unavailable click/impression metrics may be escalated for CUBE specification checks.",
+    "interoperabilityNote": "Ask CUBE / product-data-tracking channel where the decision is unknown."
   }),
-  makeEdge('e8', 'n12', 'n6', {
-    relationshipType: 'constrains',
-    description: 'Policy rules constrain calculation methodology',
+
+  makeEdge("edge_08", "cube_spec_check", "existing_metrics_hub", {
+    "relationshipType": "transfersTo",
+    "description": "If CUBE can add the specification, the metric can become available through the hub.",
+    "interoperabilityNote": "Tracking specification added to the metrics catalogue."
   }),
-  makeEdge('e9', 'n15', 'n6', {
-    relationshipType: 'informs',
-    description: 'Real-time earnings data feeds into monthly calculation',
-    interoperabilityNote: 'HMRC data via API. No coverage for self-employed.',
+
+  makeEdge("edge_09", "metric_path_choice", "manual_analysis_route", {
+    "relationshipType": "transfersTo",
+    "description": "Metrics that cannot be self-served move to manual analysis.",
+    "interoperabilityNote": "Manual analysis by Product Analytics."
   }),
-  makeEdge('e10', 'n6', 'n10', {
-    relationshipType: 'triggers',
-    description: 'Completed calculation triggers payment instruction',
+
+  makeEdge("edge_10", "manual_analysis_route", "test_design", {
+    "relationshipType": "informs",
+    "description": "Manual analysis feasibility affects whether the experiment is deliverable.",
+    "interoperabilityNote": "Product Analytics input to design."
   }),
-  makeEdge('e11', 'n10', 'n11', {
-    relationshipType: 'triggers',
-    description: 'Payment processed triggers claimant notification',
+
+  makeEdge("edge_11", "metric_validity_rules", "test_design", {
+    "relationshipType": "constrains",
+    "description": "Metric validity rules constrain which metrics can be used in the experiment.",
+    "interoperabilityNote": "Experimentation playbook and cheat sheet guidance."
   }),
-  makeEdge('e12', 'n7', 'n17', {
-    relationshipType: 'escalatesTo',
-    description: 'Case workers escalate complex cases for supervisor review',
+
+  makeEdge("edge_12", "duration_sample_size_calculation", "test_design", {
+    "relationshipType": "informs",
+    "description": "Duration and sample-size calculations inform the test design.",
+    "interoperabilityNote": "Duration calculator outputs shared with stakeholders."
   }),
-  makeEdge('e13', 'n17', 'n5', {
-    relationshipType: 'triggers',
-    description: 'Supervisor triggers medical evidence review for qualifying conditions',
+
+  makeEdge("edge_13", "test_design", "feature_build", {
+    "relationshipType": "triggers",
+    "description": "Approved design triggers feature build.",
+    "interoperabilityNote": "Engineering and Data Science delivery workflow."
   }),
-  makeEdge('e14', 'n13', 'n5', {
-    relationshipType: 'informs',
-    description: 'GP report informs medical evidence review decision',
-    interoperabilityNote: 'NHS to DWP. Paper-based. No structured data exchange.',
+
+  makeEdge("edge_14", "feature_build", "optimizely_experiment_build", {
+    "relationshipType": "transfersTo",
+    "description": "Built feature is configured as an Optimizely experiment.",
+    "interoperabilityNote": "Feature flag / activation / variant configuration."
   }),
-  makeEdge('e15', 'n5', 'n17', {
-    relationshipType: 'reviews',
-    description: 'Medical evidence review outcomes reviewed by supervisor',
+
+  makeEdge("edge_15", "optimizely_experiment_build", "qa_prelaunch", {
+    "relationshipType": "triggers",
+    "description": "Experiment configuration triggers pre-launch QA.",
+    "interoperabilityNote": "Optimizely QA and team checks."
   }),
-  makeEdge('e16', 'n16', 'n7', {
-    relationshipType: 'informs',
-    description: 'Document classifier routes documents into case worker view',
+
+  makeEdge("edge_16", "qa_prelaunch", "optimizely_experiment_build", {
+    "relationshipType": "reviews",
+    "description": "QA reviews whether variants, controls and tracking are correctly configured.",
+    "interoperabilityNote": "Manual review with system evidence."
   }),
-  makeEdge('e17', 'n14', 'n7', {
-    relationshipType: 'informs',
-    description: 'Claimant record data displayed in case worker dashboard',
+
+  makeEdge("edge_17", "qa_prelaunch", "launch_monitor", {
+    "relationshipType": "triggers",
+    "description": "Successful QA triggers launch and monitoring.",
+    "interoperabilityNote": "Go-live handoff."
   }),
-  makeEdge('e18', 'n3', 'n8', {
-    relationshipType: 'triggers',
-    description: 'Adverse eligibility decision can trigger mandatory reconsideration',
+
+  makeEdge("edge_18", "launch_monitor", "day_0_3_checks", {
+    "relationshipType": "triggers",
+    "description": "Launch triggers Day 0-3 health checks.",
+    "interoperabilityNote": "Optimizely, Piano and/or manual metric checks."
   }),
-  makeEdge('e19', 'n8', 'n9', {
-    relationshipType: 'escalatesTo',
-    description: 'Failed MR escalates to independent tribunal appeal',
-    interoperabilityNote: 'DWP to HMCTS case file transfer. Manual process.',
+
+  makeEdge("edge_19", "day_0_3_checks", "launch_monitor", {
+    "relationshipType": "reviews",
+    "description": "Health checks review data flow, traffic assignment and performance impacts.",
+    "interoperabilityNote": "Self-serve dashboards and analyst checks."
   }),
-  makeEdge('e20', 'n18', 'n17', {
-    relationshipType: 'informs',
-    description: 'Audit logs inform supervisor case review quality checks',
+
+  makeEdge("edge_20", "duration_sample_size_calculation", "stop_decision", {
+    "relationshipType": "constrains",
+    "description": "Stopping decisions are constrained by planned duration and sample-size requirements.",
+    "interoperabilityNote": "Compare reached sample against design-stage calculation."
   }),
-  makeEdge('e21', 'n19', 'n14', {
-    relationshipType: 'informs',
-    description: 'Case object state reflected in claimant record',
+
+  makeEdge("edge_21", "day_0_3_checks", "stop_decision", {
+    "relationshipType": "informs",
+    "description": "Monitoring evidence informs whether to continue, pause, stop or conclude.",
+    "interoperabilityNote": "Monitoring outputs and experiment health evidence."
   }),
-  makeEdge('e22', 'n2', 'n4', {
-    relationshipType: 'informs',
-    description: 'Identity verification outcome included in fraud scoring',
+
+  makeEdge("edge_22", "stop_decision", "analysis_results", {
+    "relationshipType": "triggers",
+    "description": "Concluding the experiment triggers results analysis.",
+    "interoperabilityNote": "Optimizely or manual analysis route."
   }),
+
+  makeEdge("edge_23", "analysis_tooling", "analysis_results", {
+    "relationshipType": "informs",
+    "description": "Analysis tools and scripts provide evidence for the result decision.",
+    "interoperabilityNote": "Optimizely, Experimentation Hub, Dropbox docs, GitHub and R scripts."
+  }),
+
+  makeEdge("edge_24", "manual_analysis_route", "analysis_tooling", {
+    "relationshipType": "informs",
+    "description": "Manual analysis route determines which analyst tooling and scripts are needed.",
+    "interoperabilityNote": "Manual analysis docs and scripts."
+  }),
+
+  makeEdge("edge_25", "analysis_results", "next_steps", {
+    "relationshipType": "triggers",
+    "description": "Analysis outcome triggers rollout, iteration, deep dive or the next experiment.",
+    "interoperabilityNote": "Product and analytics decision handoff."
+  }),
+
+  makeEdge("edge_26", "next_steps", "ideation_discovery", {
+    "relationshipType": "informs",
+    "description": "Experiment learnings feed future ideation and iteration.",
+    "interoperabilityNote": "Learning loop into discovery and backlog."
+  }),
+
 ];

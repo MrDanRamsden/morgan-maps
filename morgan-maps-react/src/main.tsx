@@ -7,20 +7,29 @@ import { ViewerApp } from './pages/ViewerApp.tsx'
 import { AdminPage } from './pages/AdminPage.tsx'
 import './index.css'
 
-const path = window.location.pathname;
+// Vite's BASE_URL comes from vite.config.ts, e.g. base: '/servicemap/'
+// Normalise it so this app works both locally at '/' and when hosted in
+// a subfolder such as https://yourdomain.com/servicemap/.
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
+const currentPath = window.location.pathname
 
-let root: React.ReactNode;
+const routePath =
+  basePath && currentPath.startsWith(basePath)
+    ? currentPath.slice(basePath.length) || '/'
+    : currentPath
 
-if (path.includes('/gallery')) {
-  root = <GalleryPage />;
-} else if (path.includes('/admin')) {
-  root = <AdminPage />;
+let root: React.ReactNode
+
+if (routePath === '/gallery' || routePath.startsWith('/gallery/')) {
+  root = <GalleryPage />
+} else if (routePath === '/admin' || routePath.startsWith('/admin/')) {
+  root = <AdminPage />
 } else {
-  const viewMatch = path.match(/\/view\/([^/]+)/);
+  const viewMatch = routePath.match(/^\/view\/([^/]+)/)
   if (viewMatch) {
-    root = <ViewerApp mapId={viewMatch[1]} />;
+    root = <ViewerApp mapId={decodeURIComponent(viewMatch[1])} />
   } else {
-    root = <App />;
+    root = <App />
   }
 }
 
@@ -28,5 +37,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {root}
     <Analytics />
-  </React.StrictMode>
+  </React.StrictMode>,
 )

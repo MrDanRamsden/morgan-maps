@@ -140,7 +140,7 @@ export function MainToolbar({ onAddNode, onFitView }: MainToolbarProps) {
         <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
           <Map size={14} className="text-white" />
         </div>
-        <span className="text-sm font-bold text-gray-800 tracking-tight">Morgan Map</span>
+        <span className="text-sm font-bold text-gray-800 tracking-tight">MorganRamsden Map</span>
       </div>
 
       {/* Map name */}
@@ -317,8 +317,8 @@ export function MainToolbar({ onAddNode, onFitView }: MainToolbarProps) {
 
         {/* Gallery */}
         <a
-          href="/morgan-map/gallery"
-          onClick={() => history.replaceState(null, '', '/morgan-map/?resume=1')}
+          href="/servicemap/gallery"
+          onClick={() => history.replaceState(null, '', '/servicemap/?resume=1')}
           className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors"
           title="Browse published maps"
         >

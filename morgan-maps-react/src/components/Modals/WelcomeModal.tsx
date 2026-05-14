@@ -1,4 +1,4 @@
-import { Map, Plus, BookOpen, LayoutGrid } from 'lucide-react';
+import { Map, Plus, BookOpen } from 'lucide-react';
 import { useMapStore } from '../../store/mapStore';
 import { SEED_NODES, SEED_EDGES } from '../../data/seedData';
 
@@ -15,7 +15,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
       nodes: SEED_NODES,
       edges: SEED_EDGES,
     });
-    setMapName('Universal Credit Claim Journey');
+    setMapName('Experimentation enablement process');
     onDismiss();
   };
 
@@ -31,9 +31,9 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
             <Map size={22} className="text-white" />
           </div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Morgan Map</h1>
+          <h1 className="text-xl font-bold text-gray-900 mb-2">Morgan Map Service Mapper</h1>
           <p className="text-sm text-gray-500 leading-relaxed">
-            A decision-centred way of mapping services — plotting elements by how automatable they are and how critical they are to good outcomes and trust.
+            Built on Morgan Maps - a decision-centred way of mapping services — plotting elements by how automatable they are and how critical they are to good outcomes and trust.
           </p>
         </div>
 
@@ -48,7 +48,7 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
             </div>
             <div>
               <div className="text-sm font-semibold text-gray-800 mb-0.5">Load example map</div>
-              <div className="text-xs text-gray-500 leading-snug">Universal Credit Claim Journey — a worked example showing decisions, evidence, execution, and interfaces across a complex government service.</div>
+              <div className="text-xs text-gray-500 leading-snug">Experimentation flow — a worked example showing decisions, evidence, execution, and interfaces across a complex service.</div>
             </div>
           </button>
 
@@ -64,20 +64,6 @@ export function WelcomeModal({ onDismiss }: WelcomeModalProps) {
               <div className="text-xs text-gray-500 leading-snug">Begin with an empty canvas. Add nodes, connect them, and build your own map from scratch.</div>
             </div>
           </button>
-
-          <a
-            href="/morgan-map/gallery"
-            onClick={() => history.replaceState(null, '', '/morgan-map/?resume=1')}
-            className="group w-full flex items-start gap-4 p-4 rounded-xl border-2 border-gray-100 hover:border-purple-200 hover:bg-purple-50 transition-all text-left"
-          >
-            <div className="w-9 h-9 rounded-lg bg-purple-100 group-hover:bg-purple-200 flex items-center justify-center flex-shrink-0 transition-colors">
-              <LayoutGrid size={16} className="text-purple-600" />
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-gray-800 mb-0.5">Browse gallery</div>
-              <div className="text-xs text-gray-500 leading-snug">Explore maps published by others — open any in read-only view or use as a starting point.</div>
-            </div>
-          </a>
 
           <p className="text-center text-[11px] text-gray-400 pt-1">
             You can import a JSON file at any time via <span className="font-medium">File → Import</span>

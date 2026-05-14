@@ -1,34 +1,50 @@
 import { useEffect, useState } from 'react';
 import { Map, ArrowLeft, Calendar } from 'lucide-react';
+import { MapThumbnail } from '../components/MapThumbnail';
 
 function goBackToEditor() {
   if (window.history.length > 1) {
     window.history.back();
   } else {
-    window.location.href = '/morgan-map/?resume=1';
+    window.location.href = '/servicemap/?resume=1';
   }
 }
-import { MapThumbnail } from '../components/MapThumbnail';
 
 interface PublishedMap {
   id: string;
-  name: string;
-  node_count: number;
-  edge_count: number;
-  published_at: string;
-  node_positions: { id: string; x: number; y: number; type: string }[];
-  edge_positions: { source: string; target: string }[];
+  name?: string;
+  title?: string;
+  description?: string;
+  file?: string;
+  node_count?: number;
+  edge_count?: number;
+  published_at?: string;
+  updatedAt?: string;
+  node_positions?: { id: string; x: number; y: number; type: string }[];
+  edge_positions?: { source: string; target: string }[];
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgo(dateStr?: string): string {
+  if (!dateStr) return 'Unknown';
+
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) return 'Unknown';
+
+  const diff = Date.now() - date.getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `${mins}m ago`;
+
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
+
   const days = Math.floor(hrs / 24);
   if (days < 30) return `${days}d ago`;
-  return new Date(dateStr).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+
+  return date.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
 }
 
 export function GalleryPage() {
@@ -37,15 +53,23 @@ export function GalleryPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch('/api/maps')
-      .then((r) => r.json())
-      .then((data) => { setMaps(data); setLoading(false); })
-      .catch(() => { setError(true); setLoading(false); });
+    fetch('/servicemap/maps/index.json')
+      .then((r) => {
+        if (!r.ok) throw new Error(`Failed to load maps: ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setMaps(Array.isArray(data) ? data : []);
+        setLoading(false);
+      })
+      .catch(() => {
+        setError(true);
+        setLoading(false);
+      });
   }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
         <div className="flex items-center gap-2">
@@ -68,7 +92,6 @@ export function GalleryPage() {
 
       {/* Content */}
       <div className="max-w-5xl mx-auto px-6 py-8">
-
         {loading && (
           <div className="flex items-center justify-center py-24">
             <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
@@ -77,7 +100,7 @@ export function GalleryPage() {
 
         {error && (
           <div className="text-center py-24 text-sm text-red-500">
-            Failed to load maps. Please try again.
+            Failed to load maps. Make sure /servicemap/maps/index.json exists and is valid JSON.
           </div>
         )}
 
@@ -88,44 +111,58 @@ export function GalleryPage() {
             </div>
             <p className="text-sm font-medium text-gray-500">No maps published yet</p>
             <p className="text-xs text-gray-400 mt-1">
-              Open the editor and use File → Publish to gallery to add the first one.
+              Use Publish to gallery to create a map JSON file, then add it to maps/index.json.
             </p>
           </div>
         )}
 
         {!loading && !error && maps.length > 0 && (
           <>
-            <p className="text-xs text-gray-400 mb-5">{maps.length} map{maps.length !== 1 ? 's' : ''} published</p>
+            <p className="text-xs text-gray-400 mb-5">
+              {maps.length} map{maps.length !== 1 ? 's' : ''} published
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {maps.map((m) => (
-                <a
-                  key={m.id}
-                  href={`/morgan-map/view/${m.id}`}
-                  className="group bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all p-4 flex flex-col gap-3"
-                >
-                  {/* Map thumbnail */}
-                  <div className="w-full h-24 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-100 overflow-hidden">
-                    <MapThumbnail
-                      nodes={m.node_positions ?? []}
-                      edges={m.edge_positions ?? []}
-                    />
-                  </div>
+              {maps.map((m) => {
+                const title = m.title || m.name || m.id;
+                const updated = m.updatedAt || m.published_at;
+                const nodeCount = m.node_count ?? m.node_positions?.length ?? 0;
+                const edgeCount = m.edge_count ?? m.edge_positions?.length ?? 0;
 
-                  {/* Info */}
-                  <div>
-                    <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-700 transition-colors leading-snug mb-1">
-                      {m.name}
-                    </p>
-                    <div className="flex items-center gap-3 text-[11px] text-gray-400">
-                      <span>{m.node_count} nodes · {m.edge_count} edges</span>
-                      <span className="flex items-center gap-1 ml-auto">
-                        <Calendar size={10} />
-                        {timeAgo(m.published_at)}
-                      </span>
+                return (
+                  <a
+                    key={m.id}
+                    href={`/servicemap/view/${m.id}`}
+                    className="group bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all p-4 flex flex-col gap-3"
+                  >
+                    {/* Map thumbnail */}
+                    <div className="w-full h-24 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-100 overflow-hidden">
+                      <MapThumbnail
+                        nodes={m.node_positions ?? []}
+                        edges={m.edge_positions ?? []}
+                      />
                     </div>
-                  </div>
-                </a>
-              ))}
+
+                    {/* Info */}
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-blue-700 transition-colors leading-snug mb-1">
+                        {title}
+                      </p>
+                      {m.description && (
+                        <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                          {m.description}
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                        <span>{nodeCount} nodes · {edgeCount} edges</span>
+                        <span className="flex items-center gap-1 ml-auto">
+                          <Calendar size={10} />
+                          {timeAgo(updated)}
+                        </span>
+                      </div>
+                    </div>
+                  </a>
+                );
+              })}
             </div>
           </>
         )}

@@ -10,7 +10,8 @@ import { HelpPanel } from './components/Panel/HelpPanel';
 // import { RiskInsightsPanel } from './components/Panel/RiskInsightsPanel';
 import { CreateNodeModal } from './components/Modals/CreateNodeModal';
 import { CreateEdgeModal } from './components/Modals/CreateEdgeModal';
-import { AXIS_PRESETS, type AxisPresetId } from './axisPresets';
+import { useEffect, useState } from 'react';
+import { AXIS_PRESETS, type AxisPresetId } from './components';
 
 // ---------------------------------------------------------------------------
 // Root application component
@@ -20,11 +21,6 @@ export default function App() {
   const [showWelcome, setShowWelcome] = useState(
     () => !new URLSearchParams(window.location.search).has('resume')
   );
-
-  const [axisPresetId, setAxisPresetId] = useState<AxisPresetId>(() => {
-    const saved = localStorage.getItem('axisPresetId') as AxisPresetId | null;
-    return saved && saved in AXIS_PRESETS ? saved : 'automationCriticality';
-  });
 
   const activePanel = useMapStore((s) => s.activePanel);
   const selectedEdgeId = useMapStore((s) => s.selectedEdgeId);
@@ -55,7 +51,7 @@ export default function App() {
         setTimeout(() => triggerFitView(), 150);
       }
     }
-  }, [importMap, setCanvasSize, setMapName, triggerFitView]);
+  }, []);
 
   // Autosave whenever the map changes (debounced)
   const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -64,15 +60,16 @@ export default function App() {
     autosaveTimer.current = setTimeout(() => {
       writeAutosave({ name: mapName, canvasWidth, canvasHeight, gridLocked, nodes, edges });
     }, 1000);
-    return () => {
-      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    };
+    return () => { if (autosaveTimer.current) clearTimeout(autosaveTimer.current); };
   }, [nodes, edges, mapName, canvasWidth, canvasHeight, gridLocked]);
 
-  // Persist selected axis preset locally for the current browser.
-  useEffect(() => {
-    localStorage.setItem('axisPresetId', axisPresetId);
-  }, [axisPresetId]);
+  //Axis
+const [axisPresetId, setAxisPresetId] = useState<AxisPresetId>(() => {
+  return (localStorage.getItem('axisPresetId') as AxisPresetId) || 'automationCriticality';
+});
+useEffect(() => {
+  localStorage.setItem('axisPresetId', axisPresetId);
+}, [axisPresetId]);
 
   // The right-rail panels (node detail, risk insights, views) live here.
   const showRightPanel =
@@ -89,30 +86,11 @@ export default function App() {
         onFitView={triggerFitView}
       />
 
-      {/* ── Axis preset selector ─────────────────────────────────────── */}
-      <div className="flex items-center gap-2 border-b border-gray-200 bg-white px-4 py-2 text-sm">
-        <label htmlFor="axis-preset" className="font-medium text-gray-700">
-          Axis mode
-        </label>
-        <select
-          id="axis-preset"
-          className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-800 shadow-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-          value={axisPresetId}
-          onChange={(event) => setAxisPresetId(event.target.value as AxisPresetId)}
-        >
-          {Object.entries(AXIS_PRESETS).map(([id, preset]) => (
-            <option key={id} value={id}>
-              {preset.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* ── Main workspace ───────────────────────────────────────────── */}
       <div className="flex flex-1 overflow-hidden relative">
         {/* Centre: map canvas */}
         <div className="flex-1 relative min-w-0">
-          <MapCanvas axisPresetId={axisPresetId} />
+          <MapCanvas />
         </div>
 
         {/* Right rail: detail panels */}

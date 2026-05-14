@@ -1,21 +1,32 @@
 import { useState, useEffect } from 'react';
 import { X, FolderOpen, Trash2, Clock, Database, BookOpen, Star, Globe, Calendar } from 'lucide-react';
-import { listSavedMaps, deleteSavedMap, formatSavedAt, SavedMap, getPublishToken, removePublishToken } from '../../utils/localSaves';
+import { listSavedMaps, deleteSavedMap, formatSavedAt, SavedMap } from '../../utils/localSaves';
 import { useMapStore } from '../../store/mapStore';
 import { SEED_NODES, SEED_EDGES } from '../../data/seedData';
 
 interface PublishedMap {
   id: string;
-  name: string;
-  node_count: number;
-  node_positions: { id: string; x: number; y: number; type: string }[];
-  edge_positions: { source: string; target: string }[];
-  edge_count: number;
-  published_at: string;
+  title?: string;
+  name?: string;
+  description?: string;
+  author?: string;
+  file?: string;
+  node_count?: number;
+  edge_count?: number;
+  nodeCount?: number;
+  edgeCount?: number;
+  published_at?: string;
+  publishedAt?: string;
+  updatedAt?: string;
+  createdAt?: string;
 }
 
-function timeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
+function timeAgo(dateStr?: string): string {
+  if (!dateStr) return 'Unknown';
+  const timestamp = new Date(dateStr).getTime();
+  if (Number.isNaN(timestamp)) return 'Unknown';
+
+  const diff = Date.now() - timestamp;
   const mins = Math.floor(diff / 60000);
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
@@ -28,11 +39,15 @@ interface SavedMapsModalProps {
   onClose: () => void;
 }
 
+const GALLERY_INDEX_URL = `${import.meta.env.BASE_URL}maps/index.json`;
+
 export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
   const [tab, setTab] = useState<'local' | 'published'>('local');
   const [saves, setSaves] = useState<SavedMap[]>([]);
   const [published, setPublished] = useState<PublishedMap[]>([]);
   const [publishedLoading, setPublishedLoading] = useState(false);
+  const [publishedError, setPublishedError] = useState<string | null>(null);
+
   const importMap = useMapStore((s) => s.importMap);
   const setMapName = useMapStore((s) => s.setMapName);
   const setCanvasSize = useMapStore((s) => s.setCanvasSize);
@@ -43,14 +58,24 @@ export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
   }, []);
 
   useEffect(() => {
-    if (tab === 'published' && published.length === 0) {
-      setPublishedLoading(true);
-      fetch('/api/maps')
-        .then((r) => r.json())
-        .then((data) => { setPublished(data); setPublishedLoading(false); })
-        .catch(() => setPublishedLoading(false));
-    }
-  }, [tab]);
+    if (tab !== 'published' || published.length > 0) return;
+
+    setPublishedLoading(true);
+    setPublishedError(null);
+
+    fetch(GALLERY_INDEX_URL, { cache: 'no-store' })
+      .then((r) => {
+        if (!r.ok) throw new Error(`Gallery index returned ${r.status}`);
+        return r.json();
+      })
+      .then((data) => {
+        setPublished(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setPublishedError('Could not load the private gallery. Check that /maps/index.json exists in the hosted servicemap folder.');
+      })
+      .finally(() => setPublishedLoading(false));
+  }, [tab, published.length]);
 
   const handleLoad = (save: SavedMap) => {
     importMap({ nodes: save.nodes, edges: save.edges });
@@ -72,17 +97,8 @@ export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
     setSaves(listSavedMaps());
   };
 
-  const handleDeletePublished = async (mapId: string) => {
-    const token = getPublishToken(mapId);
-    if (!token) return;
-    try {
-      const res = await fetch(`/api/maps/${mapId}?token=${token}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error();
-      removePublishToken(mapId);
-      setPublished((prev) => prev.filter((m) => m.id !== mapId));
-    } catch {
-      alert('Failed to delete map. Please try again.');
-    }
+  const handleDeletePublished = () => {
+    alert('This private gallery is static. To remove a map, delete its JSON file and update maps/index.json in cPanel.');
   };
 
   return (
@@ -116,14 +132,13 @@ export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
             className={`flex items-center gap-1.5 px-1 py-3 text-xs font-medium border-b-2 transition-colors ${tab === 'published' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
           >
             <Globe size={12} />
-            Published
+            Private gallery
           </button>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-4">
-
-          {/* ── Published tab ── */}
+          {/* Published tab */}
           {tab === 'published' && (
             <>
               {publishedLoading && (
@@ -131,44 +146,57 @@ export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
                   <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
-              {!publishedLoading && published.length === 0 && (
+
+              {!publishedLoading && publishedError && (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <Globe size={28} className="text-gray-200 mb-3" />
+                  <p className="text-sm font-medium text-gray-500">Private gallery not found</p>
+                  <p className="text-xs text-gray-400 mt-1 max-w-[320px]">{publishedError}</p>
+                </div>
+              )}
+
+              {!publishedLoading && !publishedError && published.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Globe size={28} className="text-gray-200 mb-3" />
                   <p className="text-sm font-medium text-gray-400">No published maps yet</p>
-                  <p className="text-xs text-gray-300 mt-1">Use File → Publish to gallery to share your map.</p>
+                  <p className="text-xs text-gray-300 mt-1">Use Publish to gallery, then upload the JSON file and update maps/index.json.</p>
                 </div>
               )}
-              {!publishedLoading && published.length > 0 && (
+
+              {!publishedLoading && !publishedError && published.length > 0 && (
                 <div className="flex flex-col gap-2">
                   {published.map((m) => {
-                    const canDelete = !!getPublishToken(m.id);
+                    const title = m.title ?? m.name ?? m.id;
+                    const nodeCount = m.node_count ?? m.nodeCount ?? 0;
+                    const edgeCount = m.edge_count ?? m.edgeCount ?? 0;
+                    const date = m.updatedAt ?? m.published_at ?? m.publishedAt ?? m.createdAt;
+
                     return (
                       <div
                         key={m.id}
                         className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/40 group transition-all"
                       >
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-800 truncate">{m.name}</p>
+                          <p className="text-sm font-medium text-gray-800 truncate">{title}</p>
+                          {m.description && <p className="text-[11px] text-gray-400 truncate mt-0.5">{m.description}</p>}
                           <div className="flex items-center gap-3 mt-0.5">
-                            <span className="text-[11px] text-gray-400">{m.node_count} nodes · {m.edge_count} edges</span>
+                            <span className="text-[11px] text-gray-400">{nodeCount} nodes · {edgeCount} edges</span>
                             <span className="flex items-center gap-1 text-[11px] text-gray-400 ml-auto">
                               <Calendar size={10} />
-                              {timeAgo(m.published_at)}
+                              {timeAgo(date)}
                             </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                          {canDelete && (
-                            <button
-                              onClick={() => handleDeletePublished(m.id)}
-                              className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
-                              title="Delete from gallery"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          )}
+                          <button
+                            onClick={handleDeletePublished}
+                            className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
+                            title="How to remove from static gallery"
+                          >
+                            <Trash2 size={13} />
+                          </button>
                           <a
-                            href={`/morgan-map/view/${m.id}`}
+                            href={`${import.meta.env.BASE_URL}view/${m.id}`}
                             className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors"
                           >
                             <FolderOpen size={11} />
@@ -183,96 +211,96 @@ export function SavedMapsModal({ onClose }: SavedMapsModalProps) {
             </>
           )}
 
-          {/* ── Local tab ── */}
-          {tab === 'local' && (<>
-
-          {/* Examples */}
-          <div className="mb-4">
-            <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Examples</p>
-            <div
-              className="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/60 hover:border-blue-300 hover:bg-blue-50 group transition-all cursor-pointer"
-              onClick={handleLoadExample}
-            >
-              <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <BookOpen size={14} className="text-blue-600" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-800">Universal Credit Claim Journey</p>
-                <div className="flex items-center gap-2 mt-0.5">
-                  <p className="text-[11px] text-gray-500">20 nodes · 22 edges</p>
-                  <span className="flex items-center gap-0.5 text-[10px] font-semibold text-blue-600 bg-blue-100 rounded-full px-1.5 py-0.5">
-                    <Star size={8} className="fill-blue-600" />
-                    Default example
-                  </span>
-                </div>
-              </div>
-              <button className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors opacity-0 group-hover:opacity-100">
-                <FolderOpen size={11} />
-                Open
-              </button>
-            </div>
-          </div>
-
-          <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Your saved maps</p>
-
-          {saves.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <FolderOpen size={32} className="text-gray-300 mb-3" />
-              <p className="text-sm font-medium text-gray-400">No saved maps yet</p>
-              <p className="text-xs text-gray-300 mt-1">
-                Use the Save button in the toolbar to save your current map
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {saves.map((save) => (
+          {/* Local tab */}
+          {tab === 'local' && (
+            <>
+              {/* Examples */}
+              <div className="mb-4">
+                <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Examples</p>
                 <div
-                  key={save.id}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/40 group transition-all"
+                  className="flex items-center gap-3 p-3 rounded-xl border border-blue-100 bg-blue-50/60 hover:border-blue-300 hover:bg-blue-50 group transition-all cursor-pointer"
+                  onClick={handleLoadExample}
                 >
-                  {/* Info */}
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <BookOpen size={14} className="text-blue-600" />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{save.name}</p>
-                    <div className="flex items-center gap-3 mt-0.5">
-                      <span className="flex items-center gap-1 text-[11px] text-gray-400">
-                        <Clock size={10} />
-                        {formatSavedAt(save.savedAt)}
-                      </span>
-                      <span className="text-[11px] text-gray-400">
-                        {save.nodeCount} nodes · {save.edgeCount} edges
+                    <p className="text-sm font-medium text-gray-800">Universal Credit Claim Journey</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-[11px] text-gray-500">20 nodes · 22 edges</p>
+                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-blue-600 bg-blue-100 rounded-full px-1.5 py-0.5">
+                        <Star size={8} className="fill-blue-600" />
+                        Default example
                       </span>
                     </div>
                   </div>
-
-                  {/* Actions */}
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleDelete(save.id)}
-                      className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
-                      title="Delete"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                    <button
-                      onClick={() => handleLoad(save)}
-                      className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors"
-                    >
-                      <FolderOpen size={11} />
-                      Open
-                    </button>
-                  </div>
+                  <button className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-colors opacity-0 group-hover:opacity-100">
+                    <FolderOpen size={11} />
+                    Open
+                  </button>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider px-1 mb-2">Your saved maps</p>
+
+              {saves.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <FolderOpen size={32} className="text-gray-300 mb-3" />
+                  <p className="text-sm font-medium text-gray-400">No saved maps yet</p>
+                  <p className="text-xs text-gray-300 mt-1">
+                    Use the Save button in the toolbar to save your current map
+                  </p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {saves.map((save) => (
+                    <div
+                      key={save.id}
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/40 group transition-all"
+                    >
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-800 truncate">{save.name}</p>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                            <Clock size={10} />
+                            {formatSavedAt(save.savedAt)}
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            {save.nodeCount} nodes · {save.edgeCount} edges
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleDelete(save.id)}
+                          className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                        <button
+                          onClick={() => handleLoad(save)}
+                          className="flex items-center gap-1 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-colors"
+                        >
+                          <FolderOpen size={11} />
+                          Open
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
-          </>)}
         </div>
 
         {/* Footer note */}
         <div className="px-5 py-3 border-t border-gray-100 bg-gray-50">
           <p className="text-[11px] text-gray-400">
-            Maps are saved in your browser's local storage. They'll persist across sessions
-            but are tied to this browser. Use Export to share or back up a map as a file.
+            Local maps are saved in this browser. Private gallery maps are static JSON files hosted in the protected servicemap folder.
           </p>
         </div>
       </div>
